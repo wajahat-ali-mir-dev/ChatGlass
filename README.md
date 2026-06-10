@@ -67,7 +67,7 @@ ChatGlass is a state-of-the-art, 100% private, client-side web application desig
    ```bash
    npm run build
    ```
-   This generates optimized, production-ready static assets in the `build/` directory, which can be hosted on any static file server (e.g., Nginx, Netlify, Vercel).
+   This generates optimized, production-ready static assets in the `dist/` directory, which can be hosted on any static file server (e.g., Nginx, Netlify, Vercel).
 
 ---
 
