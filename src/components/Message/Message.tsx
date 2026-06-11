@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import Linkify from 'react-linkify';
+import LinkifyLib from 'react-linkify';
 import { useAtomValue } from 'jotai';
 
 import Attachment from '../Attachment/Attachment';
@@ -36,8 +36,12 @@ function Message({
 }: IMessage) {
   const isSystem = !message.author;
   const dateTime = message.date.toISOString().slice(0, 19).replace('T', ' ');
-  const pollData = parsePollMessage(message.message);
+  const pollData = parsePollMessage(message.message ?? '');
   const searchQuery = useAtomValue(searchQueryAtom);
+
+  // react-linkify ships as CJS; Vite may wrap it as { default: Fn } — resolve safely
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Linkify = (LinkifyLib as any).default ?? LinkifyLib;
 
   const highlightText = (text: string, query: string) => {
     if (!query || !query.trim()) return text;
@@ -75,7 +79,7 @@ function Message({
 
   let messageComponent = (
     <Linkify componentDecorator={Link}>
-      <S.Message>{highlightText(message.message, searchQuery)}</S.Message>
+      <S.Message>{highlightText(message.message ?? '', searchQuery)}</S.Message>
     </Linkify>
   );
 

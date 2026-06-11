@@ -1110,16 +1110,27 @@ function AnalyticsDashboard() {
       return { hour, probability };
     });
 
-    // ── ADVANCED: Emoji leaderboard (top 10 most-used emojis)
+    // ── ADVANCED: Emoji leaderboard (top 15 most-used emojis)
     const emojiFrequencies: Record<string, number> = {};
-    const emojiRegex = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu;
+    // Use Unicode property escape with a safe fallback for environments that don't support it
+    let emojiRegex: RegExp;
+    try {
+      emojiRegex = new RegExp('\\p{Emoji_Presentation}|\\p{Extended_Pictographic}', 'gu');
+    } catch {
+      // Fallback: match common emoji Unicode ranges
+      emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|\u{2764}/gu;
+    }
     messages.forEach(m => {
       if (!m.message) return;
-      const found = m.message.match(emojiRegex);
-      if (found) {
-        found.forEach(e => {
-          emojiFrequencies[e] = (emojiFrequencies[e] || 0) + 1;
-        });
+      try {
+        const found = m.message.match(emojiRegex);
+        if (found) {
+          found.forEach(e => {
+            emojiFrequencies[e] = (emojiFrequencies[e] || 0) + 1;
+          });
+        }
+      } catch {
+        // skip unparseable messages
       }
     });
     const topEmojis = Object.entries(emojiFrequencies)
