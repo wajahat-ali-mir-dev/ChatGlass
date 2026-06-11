@@ -883,3 +883,136 @@ export const QuirkVal = styled.span`
     color: #f8fafc;
   }
 `;
+
+/* ── Trends & Network Tab Components ── */
+
+export const EngagementRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: #0f172a;
+    border-color: rgba(255, 255, 255, 0.03);
+  }
+`;
+
+export const EngagementRank = styled.span<{ $color: string }>`
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: ${props => props.$color};
+  font-family: 'Outfit', sans-serif;
+  min-width: 2.5rem;
+  text-align: center;
+`;
+
+export const TierBadge = styled.span<{ $color: string }>`
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: ${props => props.$color};
+  background: ${props => `${props.$color}1a`};
+  border: 1px solid ${props => `${props.$color}44`};
+  padding: 3px 10px;
+  border-radius: 9999px;
+  white-space: nowrap;
+`;
+
+export const EmojiGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.75rem;
+`;
+
+export const EmojiCard = styled.div<{ $rank: number }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem 0.5rem;
+  background: ${props => props.$rank === 0 ? 'rgba(245,158,11,0.08)' : '#f8fafc'};
+  border: 1px solid ${props => props.$rank === 0 ? 'rgba(245,158,11,0.3)' : 'rgba(0,0,0,0.03)'};
+  border-radius: 14px;
+  gap: 0.25rem;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: ${props => props.$rank === 0 ? 'rgba(245,158,11,0.1)' : '#0f172a'};
+    border-color: ${props => props.$rank === 0 ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.03)'};
+  }
+`;
+
+export const EmojiGlyph = styled.span`
+  font-size: 1.75rem;
+  line-height: 1;
+`;
+
+export const EmojiCount = styled.span`
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  font-family: 'Outfit', sans-serif;
+
+  @media (prefers-color-scheme: dark) {
+    color: #94a3b8;
+  }
+`;
+
+export const GhostPeriodRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+
+  @media (prefers-color-scheme: dark) {
+    background: #0f172a;
+    border-color: rgba(255, 255, 255, 0.03);
+  }
+`;
+
+export const GhostRank = styled.span`
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #94a3b8;
+  font-family: 'Outfit', sans-serif;
+  min-width: 2rem;
+  text-align: center;
+`;
+
+export const LengthBar = styled.div`
+  display: flex;
+  width: 100%;
+  height: 18px;
+  border-radius: 9px;
+  overflow: hidden;
+  gap: 1px;
+`;
+
+export const LengthSegment = styled.div<{ $pct: number; $color: string }>`
+  width: ${props => `${props.$pct}%`};
+  height: 100%;
+  background-color: ${props => props.$color};
+  transition: width 0.5s ease-out;
+
+  &:first-child {
+    border-radius: 9px 0 0 9px;
+  }
+  &:last-child {
+    border-radius: 0 9px 9px 0;
+  }
+`;
