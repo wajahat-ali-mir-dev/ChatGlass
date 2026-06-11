@@ -894,7 +894,9 @@ export const EngagementRow = styled.div`
   background: #f8fafc;
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.03);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 
   &:hover {
     transform: translateX(4px);
@@ -938,8 +940,11 @@ export const EmojiCard = styled.div<{ $rank: number }>`
   flex-direction: column;
   align-items: center;
   padding: 0.75rem 0.5rem;
-  background: ${props => props.$rank === 0 ? 'rgba(245,158,11,0.08)' : '#f8fafc'};
-  border: 1px solid ${props => props.$rank === 0 ? 'rgba(245,158,11,0.3)' : 'rgba(0,0,0,0.03)'};
+  background: ${props =>
+    props.$rank === 0 ? 'rgba(245,158,11,0.08)' : '#f8fafc'};
+  border: 1px solid
+    ${props =>
+      props.$rank === 0 ? 'rgba(245,158,11,0.3)' : 'rgba(0,0,0,0.03)'};
   border-radius: 14px;
   gap: 0.25rem;
   transition: transform 0.15s ease;
@@ -949,8 +954,10 @@ export const EmojiCard = styled.div<{ $rank: number }>`
   }
 
   @media (prefers-color-scheme: dark) {
-    background: ${props => props.$rank === 0 ? 'rgba(245,158,11,0.1)' : '#0f172a'};
-    border-color: ${props => props.$rank === 0 ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.03)'};
+    background: ${props =>
+      props.$rank === 0 ? 'rgba(245,158,11,0.1)' : '#0f172a'};
+    border-color: ${props =>
+      props.$rank === 0 ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.03)'};
   }
 `;
 

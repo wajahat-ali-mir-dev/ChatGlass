@@ -1115,10 +1115,15 @@ function AnalyticsDashboard() {
     // Use Unicode property escape with a safe fallback for environments that don't support it
     let emojiRegex: RegExp;
     try {
-      emojiRegex = new RegExp('\\p{Emoji_Presentation}|\\p{Extended_Pictographic}', 'gu');
+      // eslint-disable-next-line prefer-regex-literals
+      emojiRegex = new RegExp(
+        '\\p{Emoji_Presentation}|\\p{Extended_Pictographic}',
+        'gu',
+      );
     } catch {
       // Fallback: match common emoji Unicode ranges
-      emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|\u{2764}/gu;
+      emojiRegex =
+        /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|\u{2764}/gu;
     }
     messages.forEach(m => {
       if (!m.message) return;
@@ -1149,7 +1154,11 @@ function AnalyticsDashboard() {
       .sort((a, b) => a.month.localeCompare(b.month));
 
     // ── ADVANCED: Cumulative message growth over time (one point per day or week)
-    const cumulativeGrowth: Array<{ date: string; total: number; timestamp: number }> = [];
+    const cumulativeGrowth: Array<{
+      date: string;
+      total: number;
+      timestamp: number;
+    }> = [];
     if (messages.length > 0) {
       const dailyMap: Record<string, number> = {};
       messages.forEach(m => {
@@ -1160,7 +1169,11 @@ function AnalyticsDashboard() {
       let cum = 0;
       sortedDays.forEach(day => {
         cum += dailyMap[day];
-        cumulativeGrowth.push({ date: day, total: cum, timestamp: new Date(day).getTime() });
+        cumulativeGrowth.push({
+          date: day,
+          total: cum,
+          timestamp: new Date(day).getTime(),
+        });
       });
     }
 
@@ -1169,31 +1182,49 @@ function AnalyticsDashboard() {
       .filter(p => p.name !== 'System Messages' && p.messagesCount > 0)
       .map(p => {
         const totalMsgs = totalMessages || 1;
-        const shareScore = Math.min(100, (p.messagesCount / totalMsgs) * 100 * 2); // 0-100
-        const speedScore = p.avgResponseTime > 0
-          ? Math.max(0, 100 - Math.min(100, (p.avgResponseTime / (30 * 60)) * 100))
-          : 50;
+        const shareScore = Math.min(
+          100,
+          (p.messagesCount / totalMsgs) * 100 * 2,
+        ); // 0-100
+        const speedScore =
+          p.avgResponseTime > 0
+            ? Math.max(
+                0,
+                100 - Math.min(100, (p.avgResponseTime / (30 * 60)) * 100),
+              )
+            : 50;
         const initiationScore = Math.min(100, p.initiationCount * 5);
-        const consistencyScore = p.avgWords > 0
-          ? Math.min(100, p.avgWords * 5)
-          : 0;
+        const consistencyScore =
+          p.avgWords > 0 ? Math.min(100, p.avgWords * 5) : 0;
         const composite = Math.round(
           shareScore * 0.35 +
-          speedScore * 0.30 +
-          initiationScore * 0.20 +
-          consistencyScore * 0.15,
+            speedScore * 0.3 +
+            initiationScore * 0.2 +
+            consistencyScore * 0.15,
         );
         let tier = 'Bronze';
         let tierColor = '#cd7f32';
-        if (composite >= 75) { tier = 'Diamond'; tierColor = '#38bdf8'; }
-        else if (composite >= 60) { tier = 'Gold'; tierColor = '#f59e0b'; }
-        else if (composite >= 45) { tier = 'Silver'; tierColor = '#94a3b8'; }
+        if (composite >= 75) {
+          tier = 'Diamond';
+          tierColor = '#38bdf8';
+        } else if (composite >= 60) {
+          tier = 'Gold';
+          tierColor = '#f59e0b';
+        } else if (composite >= 45) {
+          tier = 'Silver';
+          tierColor = '#94a3b8';
+        }
         return { ...p, engagementScore: composite, tier, tierColor };
       })
       .sort((a, b) => b.engagementScore - a.engagementScore);
 
     // ── ADVANCED: Ghost periods detector (top 5 longest silences)
-    const ghostPeriods: Array<{ from: Date; to: Date; durationHours: number; breakerAuthor: string }> = [];
+    const ghostPeriods: Array<{
+      from: Date;
+      to: Date;
+      durationHours: number;
+      breakerAuthor: string;
+    }> = [];
     for (let i = 1; i < messages.length; i += 1) {
       const gap = messages[i].date.getTime() - messages[i - 1].date.getTime();
       const gapHours = gap / (1000 * 60 * 60);
@@ -1214,7 +1245,9 @@ function AnalyticsDashboard() {
     const lengthHistogram: Record<string, number[]> = {};
     participantStatsList
       .filter(p => p.name !== 'System Messages')
-      .forEach(p => { lengthHistogram[p.name] = [0, 0, 0, 0, 0]; });
+      .forEach(p => {
+        lengthHistogram[p.name] = [0, 0, 0, 0, 0];
+      });
     messages.forEach(m => {
       if (!m.message || !m.author || !lengthHistogram[m.author]) return;
       const wc = m.message.trim().split(/\s+/).filter(Boolean).length;
@@ -2615,31 +2648,75 @@ function AnalyticsDashboard() {
           {/* ── Engagement Score Leaderboard ── */}
           <S.ChartCard>
             <S.CardTitle>
-              <span style={{ fontSize: '1.2rem' }}>🏆</span> Engagement Score Leaderboard
+              <span style={{ fontSize: '1.2rem' }}>🏆</span> Engagement Score
+              Leaderboard
             </S.CardTitle>
-            <S.PredictionSubtitle style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-              Composite score (0-100) combining message share, reply speed, topic initiations, and message depth.
+            <S.PredictionSubtitle
+              style={{ textAlign: 'left', marginBottom: '0.5rem' }}
+            >
+              Composite score (0-100) combining message share, reply speed,
+              topic initiations, and message depth.
             </S.PredictionSubtitle>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+            >
               {stats.engagementScores.map((p, rank) => (
                 <S.EngagementRow key={p.name}>
-                  <S.EngagementRank $color={p.tierColor}>#{rank + 1}</S.EngagementRank>
-                  <S.Avatar $color={p.color} style={{ width: '38px', height: '38px', fontSize: '1rem', flexShrink: 0 }}>
+                  <S.EngagementRank $color={p.tierColor}>
+                    #{rank + 1}
+                  </S.EngagementRank>
+                  <S.Avatar
+                    $color={p.color}
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      fontSize: '1rem',
+                      flexShrink: 0,
+                    }}
+                  >
                     {p.name.charAt(0).toUpperCase()}
                   </S.Avatar>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#0f172a' }}>{p.name}</span>
-                      <S.TierBadge $color={p.tierColor}>{p.tier} · {p.engagementScore}/100</S.TierBadge>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '6px',
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontWeight: 700,
+                          fontSize: '0.95rem',
+                          color: '#0f172a',
+                        }}
+                      >
+                        {p.name}
+                      </span>
+                      <S.TierBadge $color={p.tierColor}>
+                        {p.tier} · {p.engagementScore}/100
+                      </S.TierBadge>
                     </div>
-                    <div style={{ width: '100%', height: '10px', backgroundColor: '#e2e8f0', borderRadius: '5px', overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${p.engagementScore}%`,
-                        height: '100%',
-                        background: `linear-gradient(90deg, ${p.tierColor} 0%, ${p.color} 100%)`,
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '10px',
+                        backgroundColor: '#e2e8f0',
                         borderRadius: '5px',
-                        transition: 'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      }} />
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${p.engagementScore}%`,
+                          height: '100%',
+                          background: `linear-gradient(90deg, ${p.tierColor} 0%, ${p.color} 100%)`,
+                          borderRadius: '5px',
+                          transition:
+                            'width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                        }}
+                      />
                     </div>
                   </div>
                 </S.EngagementRow>
@@ -2655,50 +2732,137 @@ function AnalyticsDashboard() {
                 Total messages accumulated over the chat lifetime.
               </S.PredictionSubtitle>
               <S.ChartContainer style={{ height: '220px' }}>
-                {stats.cumulativeGrowth.length > 1 ? (() => {
-                  const maxTotal = stats.cumulativeGrowth.at(-1)?.total || 1;
-                  const pts = stats.cumulativeGrowth.map((d, i) => {
-                    const x = 30 + (i / (stats.cumulativeGrowth.length - 1)) * 490;
-                    const y = 145 - (d.total / maxTotal) * 120;
-                    return { x, y, ...d };
-                  });
-                  const pathD = `M ${pts[0].x} ${pts[0].y} ${pts.slice(1).map(p => `L ${p.x} ${p.y}`).join(' ')}`;
-                  const areaD = `${pathD} L ${pts.at(-1)?.x} 145 L ${pts[0].x} 145 Z`;
-                  return (
-                    <svg width="100%" height="100%" viewBox="0 0 540 180" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="growthAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.35" />
-                          <stop offset="100%" stopColor="#6366f1" stopOpacity="0.02" />
-                        </linearGradient>
-                      </defs>
-                      {[25, 50, 75, 100].map(pct => {
-                        const y = 145 - (pct / 100) * 120;
-                        return (
-                          <g key={pct}>
-                            <line x1="30" y1={y} x2="520" y2={y} stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4" />
-                            <text x="10" y={y + 4} fill="#94a3b8" fontSize="9" fontWeight="500">
-                              {Math.round((pct / 100) * maxTotal).toLocaleString()}
-                            </text>
-                          </g>
-                        );
-                      })}
-                      <path d={areaD} fill="url(#growthAreaGrad)" />
-                      <path d={pathD} fill="none" stroke="#6366f1" strokeWidth="2.5" />
-                      {/* Start & end dots */}
-                      <circle cx={pts[0].x} cy={pts[0].y} r="5" fill="white" stroke="#6366f1" strokeWidth="2.5" />
-                      <circle cx={pts.at(-1)!.x} cy={pts.at(-1)!.y} r="5" fill="#6366f1" stroke="white" strokeWidth="2" />
-                      <line x1="30" y1="145" x2="520" y2="145" stroke="#e2e8f0" strokeWidth="1.5" />
-                      {/* Date labels: first, middle, last */}
-                      {[pts[0], pts[Math.floor(pts.length / 2)], pts.at(-1)!].map((p, i) => (
-                        <text key={i} x={p.x} y="165" fill="#94a3b8" fontSize="9" textAnchor="middle" fontWeight="600">
-                          {p.date.slice(0, 7)}
-                        </text>
-                      ))}
-                    </svg>
-                  );
-                })() : (
-                  <div style={{ color: '#94a3b8', textAlign: 'center', padding: '2rem' }}>Not enough data</div>
+                {stats.cumulativeGrowth.length > 1 ? (
+                  (() => {
+                    const maxTotal = stats.cumulativeGrowth.at(-1)?.total || 1;
+                    const pts = stats.cumulativeGrowth.map((d, i) => {
+                      const x =
+                        30 + (i / (stats.cumulativeGrowth.length - 1)) * 490;
+                      const y = 145 - (d.total / maxTotal) * 120;
+                      return { x, y, ...d };
+                    });
+                    const pathD = `M ${pts[0].x} ${pts[0].y} ${pts
+                      .slice(1)
+                      .map(p => `L ${p.x} ${p.y}`)
+                      .join(' ')}`;
+                    const areaD = `${pathD} L ${pts.at(-1)?.x} 145 L ${pts[0].x} 145 Z`;
+                    return (
+                      <svg
+                        width="100%"
+                        height="100%"
+                        viewBox="0 0 540 180"
+                        preserveAspectRatio="none"
+                      >
+                        <defs>
+                          <linearGradient
+                            id="growthAreaGrad"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor="#6366f1"
+                              stopOpacity="0.35"
+                            />
+                            <stop
+                              offset="100%"
+                              stopColor="#6366f1"
+                              stopOpacity="0.02"
+                            />
+                          </linearGradient>
+                        </defs>
+                        {[25, 50, 75, 100].map(pct => {
+                          const y = 145 - (pct / 100) * 120;
+                          return (
+                            <g key={pct}>
+                              <line
+                                x1="30"
+                                y1={y}
+                                x2="520"
+                                y2={y}
+                                stroke="#f1f5f9"
+                                strokeWidth="1"
+                                strokeDasharray="4"
+                              />
+                              <text
+                                x="10"
+                                y={y + 4}
+                                fill="#94a3b8"
+                                fontSize="9"
+                                fontWeight="500"
+                              >
+                                {Math.round(
+                                  (pct / 100) * maxTotal,
+                                ).toLocaleString()}
+                              </text>
+                            </g>
+                          );
+                        })}
+                        <path d={areaD} fill="url(#growthAreaGrad)" />
+                        <path
+                          d={pathD}
+                          fill="none"
+                          stroke="#6366f1"
+                          strokeWidth="2.5"
+                        />
+                        {/* Start & end dots */}
+                        <circle
+                          cx={pts[0].x}
+                          cy={pts[0].y}
+                          r="5"
+                          fill="white"
+                          stroke="#6366f1"
+                          strokeWidth="2.5"
+                        />
+                        <circle
+                          cx={pts.at(-1)!.x}
+                          cy={pts.at(-1)!.y}
+                          r="5"
+                          fill="#6366f1"
+                          stroke="white"
+                          strokeWidth="2"
+                        />
+                        <line
+                          x1="30"
+                          y1="145"
+                          x2="520"
+                          y2="145"
+                          stroke="#e2e8f0"
+                          strokeWidth="1.5"
+                        />
+                        {/* Date labels: first, middle, last */}
+                        {[
+                          pts[0],
+                          pts[Math.floor(pts.length / 2)],
+                          pts.at(-1)!,
+                        ].map(p => (
+                          <text
+                            key={p.date}
+                            x={p.x}
+                            y="165"
+                            fill="#94a3b8"
+                            fontSize="9"
+                            textAnchor="middle"
+                            fontWeight="600"
+                          >
+                            {p.date.slice(0, 7)}
+                          </text>
+                        ))}
+                      </svg>
+                    );
+                  })()
+                ) : (
+                  <div
+                    style={{
+                      color: '#94a3b8',
+                      textAlign: 'center',
+                      padding: '2rem',
+                    }}
+                  >
+                    Not enough data
+                  </div>
                 )}
               </S.ChartContainer>
             </S.ChartCard>
@@ -2709,37 +2873,85 @@ function AnalyticsDashboard() {
                 Messages sent per calendar month across the chat history.
               </S.PredictionSubtitle>
               <S.ChartContainer style={{ height: '220px' }}>
-                {stats.monthlyActivityList.length > 0 ? (() => {
-                  const maxM = Math.max(...stats.monthlyActivityList.map(m => m.count), 1);
-                  const barW = Math.max(8, Math.floor(480 / stats.monthlyActivityList.length) - 4);
-                  return (
-                    <svg width="100%" height="100%" viewBox="0 0 540 180" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="monthBarGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#ec4899" />
-                          <stop offset="100%" stopColor="#be185d" />
-                        </linearGradient>
-                      </defs>
-                      {stats.monthlyActivityList.map((m, i) => {
-                        const h = (m.count / maxM) * 120;
-                        const x = 30 + i * (barW + 4);
-                        return (
-                          <g key={m.month}>
-                            <title>{`${m.month}: ${m.count} messages`}</title>
-                            <rect x={x} y={145 - h} width={barW} height={h} rx="3" fill="url(#monthBarGrad)" />
-                            {stats.monthlyActivityList.length <= 24 && (
-                              <text x={x + barW / 2} y="165" fill="#94a3b8" fontSize="8" textAnchor="middle" fontWeight="600">
-                                {m.month.slice(5)}
-                              </text>
-                            )}
-                          </g>
-                        );
-                      })}
-                      <line x1="20" y1="145" x2="520" y2="145" stroke="#e2e8f0" strokeWidth="1" />
-                    </svg>
-                  );
-                })() : (
-                  <div style={{ color: '#94a3b8', textAlign: 'center', padding: '2rem' }}>Not enough data</div>
+                {stats.monthlyActivityList.length > 0 ? (
+                  (() => {
+                    const maxM = Math.max(
+                      ...stats.monthlyActivityList.map(m => m.count),
+                      1,
+                    );
+                    const barW = Math.max(
+                      8,
+                      Math.floor(480 / stats.monthlyActivityList.length) - 4,
+                    );
+                    return (
+                      <svg
+                        width="100%"
+                        height="100%"
+                        viewBox="0 0 540 180"
+                        preserveAspectRatio="none"
+                      >
+                        <defs>
+                          <linearGradient
+                            id="monthBarGrad"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop offset="0%" stopColor="#ec4899" />
+                            <stop offset="100%" stopColor="#be185d" />
+                          </linearGradient>
+                        </defs>
+                        {stats.monthlyActivityList.map((m, i) => {
+                          const h = (m.count / maxM) * 120;
+                          const x = 30 + i * (barW + 4);
+                          return (
+                            <g key={m.month}>
+                              <title>{`${m.month}: ${m.count} messages`}</title>
+                              <rect
+                                x={x}
+                                y={145 - h}
+                                width={barW}
+                                height={h}
+                                rx="3"
+                                fill="url(#monthBarGrad)"
+                              />
+                              {stats.monthlyActivityList.length <= 24 && (
+                                <text
+                                  x={x + barW / 2}
+                                  y="165"
+                                  fill="#94a3b8"
+                                  fontSize="8"
+                                  textAnchor="middle"
+                                  fontWeight="600"
+                                >
+                                  {m.month.slice(5)}
+                                </text>
+                              )}
+                            </g>
+                          );
+                        })}
+                        <line
+                          x1="20"
+                          y1="145"
+                          x2="520"
+                          y2="145"
+                          stroke="#e2e8f0"
+                          strokeWidth="1"
+                        />
+                      </svg>
+                    );
+                  })()
+                ) : (
+                  <div
+                    style={{
+                      color: '#94a3b8',
+                      textAlign: 'center',
+                      padding: '2rem',
+                    }}
+                  >
+                    Not enough data
+                  </div>
                 )}
               </S.ChartContainer>
             </S.ChartCard>
@@ -2753,7 +2965,14 @@ function AnalyticsDashboard() {
                 Most frequently sent emojis in the conversation.
               </S.PredictionSubtitle>
               {stats.topEmojis.length === 0 ? (
-                <div style={{ color: '#94a3b8', textAlign: 'center', padding: '2rem 0', fontSize: '0.9rem' }}>
+                <div
+                  style={{
+                    color: '#94a3b8',
+                    textAlign: 'center',
+                    padding: '2rem 0',
+                    fontSize: '0.9rem',
+                  }}
+                >
                   No emojis detected in this chat.
                 </div>
               ) : (
@@ -2762,11 +2981,27 @@ function AnalyticsDashboard() {
                     const maxCount = stats.topEmojis[0]?.count || 1;
                     const pct = Math.round((e.count / maxCount) * 100);
                     return (
-                      <S.EmojiCard key={e.emoji + i} $rank={i}>
+                      <S.EmojiCard key={e.emoji} $rank={i}>
                         <S.EmojiGlyph>{e.emoji}</S.EmojiGlyph>
                         <S.EmojiCount>{e.count.toLocaleString()}×</S.EmojiCount>
-                        <div style={{ width: '100%', height: '4px', backgroundColor: '#e2e8f0', borderRadius: '2px', marginTop: '4px' }}>
-                          <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg, #f59e0b, #ec4899)', borderRadius: '2px' }} />
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '4px',
+                            backgroundColor: '#e2e8f0',
+                            borderRadius: '2px',
+                            marginTop: '4px',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: `${pct}%`,
+                              height: '100%',
+                              background:
+                                'linear-gradient(90deg, #f59e0b, #ec4899)',
+                              borderRadius: '2px',
+                            }}
+                          />
                         </div>
                       </S.EmojiCard>
                     );
@@ -2778,31 +3013,86 @@ function AnalyticsDashboard() {
             <S.ChartCard>
               <S.CardTitle>👻 Longest Silence Periods</S.CardTitle>
               <S.PredictionSubtitle style={{ textAlign: 'left' }}>
-                Top 5 longest gaps (&gt;12h) where nobody sent a message. Who broke the silence?
+                Top 5 longest gaps (&gt;12h) where nobody sent a message. Who
+                broke the silence?
               </S.PredictionSubtitle>
               {stats.top5Ghosts.length === 0 ? (
-                <div style={{ color: '#94a3b8', textAlign: 'center', padding: '2rem 0', fontSize: '0.9rem' }}>
+                <div
+                  style={{
+                    color: '#94a3b8',
+                    textAlign: 'center',
+                    padding: '2rem 0',
+                    fontSize: '0.9rem',
+                  }}
+                >
                   No significant silence gaps detected.
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.75rem',
+                  }}
+                >
                   {stats.top5Ghosts.map((g, i) => {
                     const days = Math.floor(g.durationHours / 24);
                     const hrs = Math.round(g.durationHours % 24);
-                    const durationStr = days > 0 ? `${days}d ${hrs}h` : `${hrs}h`;
-                    const fromStr = g.from.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-                    const toStr = g.to.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-                    const breakerColor = stats.participantStatsList.find(p => p.name === g.breakerAuthor)?.color || '#6366f1';
+                    const durationStr =
+                      days > 0 ? `${days}d ${hrs}h` : `${hrs}h`;
+                    const fromStr = g.from.toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    });
+                    const toStr = g.to.toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                    });
+                    const breakerColor =
+                      stats.participantStatsList.find(
+                        p => p.name === g.breakerAuthor,
+                      )?.color || '#6366f1';
                     return (
-                      <S.GhostPeriodRow key={i}>
+                      <S.GhostPeriodRow key={g.from.toISOString()}>
                         <S.GhostRank>#{i + 1}</S.GhostRank>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '2px' }}>
+                          <div
+                            style={{
+                              fontSize: '0.85rem',
+                              color: '#64748b',
+                              marginBottom: '2px',
+                            }}
+                          >
                             {fromStr} → {toStr}
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', fontFamily: 'Outfit, sans-serif' }}>{durationStr} silence</span>
-                            <span style={{ fontSize: '0.75rem', background: `${breakerColor}22`, color: breakerColor, padding: '2px 8px', borderRadius: '9999px', fontWeight: 700 }}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: '1.1rem',
+                                fontWeight: 800,
+                                color: '#0f172a',
+                                fontFamily: 'Outfit, sans-serif',
+                              }}
+                            >
+                              {durationStr} silence
+                            </span>
+                            <span
+                              style={{
+                                fontSize: '0.75rem',
+                                background: `${breakerColor}22`,
+                                color: breakerColor,
+                                padding: '2px 8px',
+                                borderRadius: '9999px',
+                                fontWeight: 700,
+                              }}
+                            >
                               broken by {g.breakerAuthor}
                             </span>
                           </div>
@@ -2818,30 +3108,70 @@ function AnalyticsDashboard() {
           {/* ── Message Length Distribution ── */}
           <S.ChartCard>
             <S.CardTitle>📏 Message Length Distribution</S.CardTitle>
-            <S.PredictionSubtitle style={{ textAlign: 'left', marginBottom: '0.5rem' }}>
-              Breakdown of message lengths (by word count) for each participant — reveals whether they prefer quick texts or lengthy replies.
+            <S.PredictionSubtitle
+              style={{ textAlign: 'left', marginBottom: '0.5rem' }}
+            >
+              Breakdown of message lengths (by word count) for each participant
+              — reveals whether they prefer quick texts or lengthy replies.
             </S.PredictionSubtitle>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem',
+              }}
+            >
               {Object.entries(stats.lengthHistogram)
                 .filter(([name]) => name !== 'System Messages')
                 .map(([name, buckets]) => {
                   const total = buckets.reduce((s, c) => s + c, 0) || 1;
-                  const userColor = stats.participantStatsList.find(p => p.name === name)?.color || '#6366f1';
-                  const bucketColors = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#f43f5e'];
+                  const userColor =
+                    stats.participantStatsList.find(p => p.name === name)
+                      ?.color || '#6366f1';
+                  const bucketColors = [
+                    '#10b981',
+                    '#6366f1',
+                    '#f59e0b',
+                    '#ec4899',
+                    '#f43f5e',
+                  ];
                   return (
                     <div key={name}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '6px' }}>
-                        <S.Avatar $color={userColor} style={{ width: '28px', height: '28px', fontSize: '0.8rem', flexShrink: 0 }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          marginBottom: '6px',
+                        }}
+                      >
+                        <S.Avatar
+                          $color={userColor}
+                          style={{
+                            width: '28px',
+                            height: '28px',
+                            fontSize: '0.8rem',
+                            flexShrink: 0,
+                          }}
+                        >
                           {name.charAt(0).toUpperCase()}
                         </S.Avatar>
-                        <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' }}>{name}</span>
+                        <span
+                          style={{
+                            fontWeight: 700,
+                            fontSize: '0.9rem',
+                            color: '#0f172a',
+                          }}
+                        >
+                          {name}
+                        </span>
                       </div>
                       <S.LengthBar>
                         {buckets.map((count, bi) => {
                           const pct = (count / total) * 100;
                           return pct > 0 ? (
                             <S.LengthSegment
-                              key={bi}
+                              key={stats.lengthBuckets[bi]}
                               $pct={pct}
                               $color={bucketColors[bi]}
                               title={`${stats.lengthBuckets[bi]} words: ${count} msgs (${pct.toFixed(1)}%)`}
@@ -2849,11 +3179,36 @@ function AnalyticsDashboard() {
                           ) : null;
                         })}
                       </S.LengthBar>
-                      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '6px', flexWrap: 'wrap' }}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '0.75rem',
+                          marginTop: '6px',
+                          flexWrap: 'wrap',
+                        }}
+                      >
                         {buckets.map((count, bi) => (
-                          <span key={bi} style={{ fontSize: '0.72rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                            <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: bucketColors[bi], display: 'inline-block' }} />
-                            {stats.lengthBuckets[bi]} words: {((count / total) * 100).toFixed(1)}%
+                          <span
+                            key={stats.lengthBuckets[bi]}
+                            style={{
+                              fontSize: '0.72rem',
+                              color: '#64748b',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '2px',
+                                background: bucketColors[bi],
+                                display: 'inline-block',
+                              }}
+                            />
+                            {stats.lengthBuckets[bi]} words:{' '}
+                            {((count / total) * 100).toFixed(1)}%
                           </span>
                         ))}
                       </div>
